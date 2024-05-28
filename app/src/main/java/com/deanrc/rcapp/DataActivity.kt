@@ -40,7 +40,7 @@ class DataActivity : AppCompatActivity() {
         val spinnerAdapter = ArrayAdapter(this, R.layout.spinner_item, options)
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         tallyCodeSpinner.adapter = spinnerAdapter
-        val projectsList = findViewById<RecyclerView>(R.id.recyclerView)
+        val projectsList = findViewById<RecyclerView>(R.id.recyclerViewData)
         projectsList.layoutManager = LinearLayoutManager(this)
         val items = listOf(
             ItemsViewModel("Project 1", "Description 1"),
