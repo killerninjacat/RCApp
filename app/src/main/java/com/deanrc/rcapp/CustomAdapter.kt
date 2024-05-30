@@ -3,27 +3,30 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.deanrc.rcapp.KeyValue
 import com.deanrc.rcapp.R
+import org.json.JSONObject
 
 
 data class ItemsViewModel(val title: String, val description: String) {
 }
-class CustomAdapter(private val mList: List<ItemsViewModel>) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
+class CustomAdapter(private val mList: List<KeyValue>) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.each_project, parent, false)
         return ViewHolder(view)
     }
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val itemsViewModel = mList[position]
-        holder.title.text = itemsViewModel.title
-        holder.description.text = itemsViewModel.description
+        val keyValue = mList[position]
+        holder.title.text = keyValue.key
+        holder.description.text = keyValue.value
     }
+
     override fun getItemCount(): Int {
         return mList.size
     }
-    class ViewHolder(ItemView: View) : RecyclerView.ViewHolder(ItemView) {
-        val description: TextView = itemView.findViewById(R.id.description)
-        val title: TextView = itemView.findViewById(R.id.title)
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val description: TextView = this.itemView.findViewById(R.id.description)
+        val title: TextView = this.itemView.findViewById(R.id.title)
     }
 }

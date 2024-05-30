@@ -34,7 +34,7 @@ class StatusActivity : AppCompatActivity() {
             ItemsViewModel("Date 9", "Description 9"),
             ItemsViewModel("Date 10", "Description 10")
         )
-        val adapter = CustomAdapter(items)
-        statusList.adapter = adapter
+        //val adapter = CustomAdapter(items)
+        //statusList.adapter = adapter
     }
 }
