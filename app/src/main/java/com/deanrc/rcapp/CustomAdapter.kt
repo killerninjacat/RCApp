@@ -5,7 +5,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.deanrc.rcapp.KeyValue
 import com.deanrc.rcapp.R
-import org.json.JSONObject
 
 
 data class ItemsViewModel(val title: String, val description: String) {
@@ -13,7 +12,7 @@ data class ItemsViewModel(val title: String, val description: String) {
 class CustomAdapter(private val mList: List<KeyValue>) : RecyclerView.Adapter<CustomAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.each_project, parent, false)
+            .inflate(R.layout.each_row, parent, false)
         return ViewHolder(view)
     }
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

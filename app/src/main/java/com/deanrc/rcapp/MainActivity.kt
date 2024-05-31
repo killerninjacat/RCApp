@@ -1,6 +1,7 @@
 package com.deanrc.rcapp
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
 import android.text.SpannableString
@@ -15,8 +16,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.recyclerview.widget.RecyclerView
 import org.json.JSONObject
 import java.io.OutputStreamWriter
@@ -33,6 +36,12 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        val isDarkTheme = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+        if (isDarkTheme) {
+            val controller = WindowInsetsControllerCompat(window, window.decorView)
+            controller.isAppearanceLightStatusBars = true
+            window.statusBarColor = ContextCompat.getColor(this, R.color.white)
+        }
         val staffIdBox = findViewById<EditText>(R.id.editTextStaffID)
         val passwordBox = findViewById<EditText>(R.id.editTextPassword)
         val submitButton= findViewById<Button>(R.id.submitButton)
@@ -40,6 +49,10 @@ class MainActivity : AppCompatActivity() {
         submitButton.setOnClickListener {
             val staffId = staffIdBox.text.toString()
             val password = passwordBox.text.toString()
+            if(staffId.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Please fill in all fields!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             Thread {
                 val jsonInputString = JSONObject()
                     .put("staffID", staffId)

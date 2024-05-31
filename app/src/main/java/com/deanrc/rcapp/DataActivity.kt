@@ -1,32 +1,28 @@
 package com.deanrc.rcapp
 
 import CustomAdapter
+import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.BufferedReader
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
 
 class DataActivity : AppCompatActivity() {
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -36,6 +32,12 @@ class DataActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        val isDarkTheme = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+        if (isDarkTheme) {
+            val controller = WindowInsetsControllerCompat(window, window.decorView)
+            controller.isAppearanceLightStatusBars = true
+            window.statusBarColor = ContextCompat.getColor(this, R.color.white)
+        }
         val staffIDTextView = findViewById<TextView>(R.id.staffIDTextView)
         staffIDTextView.text = "Staff ID: " + intent.getStringExtra("staffID")
         val welcomeTextView = findViewById<TextView>(R.id.WelcomeTextView)
@@ -44,27 +46,37 @@ class DataActivity : AppCompatActivity() {
         Log.d("DataActivity", contentJsonArray.length().toString())
         welcomeTextView.text = "Welcome, " + contentJsonArray.getJSONObject(0).getJSONObject("05. Name").getString("value")
         val tallyCodeSpinner = findViewById<Spinner>(R.id.tallyCodeSpinner)
-        val options = listOf("Option 1", "Option 2", "Option 3")
-        val spinnerAdapter = ArrayAdapter(this, R.layout.spinner_item, options)
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        tallyCodeSpinner.adapter = spinnerAdapter
+        val tallyCodes = mutableListOf<String>()
         val projectsList = findViewById<RecyclerView>(R.id.recyclerViewData)
         projectsList.layoutManager = LinearLayoutManager(this)
         val items = mutableListOf<JSONObject>()
         for(i in 0 until contentJsonArray.length()) {
             val project = contentJsonArray.getJSONObject(i)
             items.add(project)
+            tallyCodes.add(project.getJSONObject("Tallycode").getString("value"))
         }
-        val listKeyValue = transformData(items)
-        val sortedList = listKeyValue.sortedWith { o1, o2 ->
-            when {
-                !o1.key.any { it.isDigit() } && o2.key.any { it.isDigit() } -> -1
-                o1.key.any { it.isDigit() } && !o2.key.any { it.isDigit() } -> 1
-                else -> o1.key.compareTo(o2.key)
+        val spinnerAdapter = ArrayAdapter(this, R.layout.spinner_item, tallyCodes)
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        tallyCodeSpinner.adapter = spinnerAdapter
+        tallyCodeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val selectedTallyCode = parent.getItemAtPosition(position).toString()
+                val filteredItems = items.filter { it.getJSONObject("Tallycode").getString("value") == selectedTallyCode }
+                val listKeyValue = transformData(filteredItems)
+                val sortedList = listKeyValue.sortedWith { o1, o2 ->
+                    when {
+                        !o1.key.any { it.isDigit() } && o2.key.any { it.isDigit() } -> -1
+                        o1.key.any { it.isDigit() } && !o2.key.any { it.isDigit() } -> 1
+                        else -> o1.key.compareTo(o2.key)
+                    }
+                }
+                val adapter = CustomAdapter(sortedList)
+                projectsList.adapter = adapter
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
             }
         }
-        val adapter = CustomAdapter(sortedList)
-        projectsList.adapter = adapter
 }
 }
 data class KeyValue(val key: String, val value: String)
@@ -75,8 +87,13 @@ fun transformData(projectList: List<JSONObject>): List<KeyValue> {
         val keysIterator: Iterator<String> = project.keys()
         while (keysIterator.hasNext()) {
             val key = keysIterator.next()
-            val value = project.getJSONObject(key).getString("value")
-            keyValueList.add(KeyValue(key, value))
+            if (!key.contains("97. Sanction Order") &&
+                !key.contains("98. Office Order") &&
+                !key.contains("99. Utilization Certificate") &&
+                !key.contains("99a. Expenditure Details")) {
+                val value = project.getJSONObject(key).getString("value")
+                keyValueList.add(KeyValue(key, value))
+            }
         }
     }
     return keyValueList
