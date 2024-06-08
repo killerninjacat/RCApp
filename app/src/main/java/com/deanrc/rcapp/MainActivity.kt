@@ -50,6 +50,11 @@ class MainActivity : AppCompatActivity() {
             val staffId = staffIdBox.text.toString()
             val password = passwordBox.text.toString()
             if(staffId.isEmpty() || password.isEmpty()) {
+                //delete
+                val intent = Intent(this, QRscanner::class.java)
+                intent.putExtra("staffID", staffId)
+                startActivity(intent)
+                //delete
                 Toast.makeText(this, "Please fill in all fields!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
