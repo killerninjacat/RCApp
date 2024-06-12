@@ -1,7 +1,8 @@
 package com.deanrc.rcapp
 
-import CustomAdapter
+import DataAdapter
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
@@ -32,14 +33,9 @@ class DataActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val isDarkTheme = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
-        if (isDarkTheme) {
-            val controller = WindowInsetsControllerCompat(window, window.decorView)
-            controller.isAppearanceLightStatusBars = true
-            window.statusBarColor = ContextCompat.getColor(this, R.color.white)
-        }
         val staffIDTextView = findViewById<TextView>(R.id.staffIDTextView)
-        staffIDTextView.text = "Staff ID: " + intent.getStringExtra("staffID")
+        val staffId = intent.getStringExtra("staffID")
+        staffIDTextView.text = "Staff ID: $staffId"
         val welcomeTextView = findViewById<TextView>(R.id.WelcomeTextView)
         val content = intent.getStringExtra("content")
         val contentJsonArray = JSONArray(content)
@@ -54,6 +50,12 @@ class DataActivity : AppCompatActivity() {
             val project = contentJsonArray.getJSONObject(i)
             items.add(project)
             tallyCodes.add(project.getJSONObject("Tallycode").getString("value"))
+        }
+        val qrIcon = findViewById<View>(R.id.qrImageView)
+        qrIcon.setOnClickListener {
+            val intent = Intent(this, QRscanner::class.java)
+            intent.putExtra("staffID", staffId)
+            startActivity(intent)
         }
         val spinnerAdapter = ArrayAdapter(this, R.layout.spinner_item, tallyCodes)
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -70,7 +72,7 @@ class DataActivity : AppCompatActivity() {
                         else -> o1.key.compareTo(o2.key)
                     }
                 }
-                val adapter = CustomAdapter(sortedList)
+                val adapter = DataAdapter(sortedList)
                 projectsList.adapter = adapter
             }
 

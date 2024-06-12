@@ -5,7 +5,6 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FAECEC"
     tools:context=".StatusActivity">
 
     <ImageButton
@@ -63,7 +62,7 @@
         android:layout_marginTop="16dp"
         android:fontFamily="sans-serif-medium"
         android:text="NITT R&amp;C PROJECTS"
-        android:textColor="#330A0A"
+        android:textColor="@color/border_color"
         android:textSize="25sp"
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toTopOf="parent" />

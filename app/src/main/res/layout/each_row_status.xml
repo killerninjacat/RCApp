@@ -3,14 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#FAECEC"
     app:cardCornerRadius="0dp"
     app:cardElevation="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#FAECEC">
+        android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/imageView4"
@@ -45,7 +43,7 @@
             android:layout_weight="2"
             android:padding="10dp"
             android:text="Column value"
-            android:textColor="#000000"
+            android:textColor="@color/border_color"
             android:textStyle="italic"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -64,7 +62,7 @@
             android:fontFamily="sans-serif-medium"
             android:padding="10dp"
             android:text="Column"
-            android:textColor="#3C0202"
+            android:textColor="@color/border_color"
             android:textStyle="normal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/imageView4"
