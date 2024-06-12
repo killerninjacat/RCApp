@@ -56,10 +56,11 @@ class QRscanner : AppCompatActivity() {
         codeScanner.decodeCallback = DecodeCallback {
             runOnUiThread {
                 Log.d("QR link",it.text )
-                FetchUrlContentTask().execute(it.text)
+                //FetchUrlContentTask().execute(it.text)
                 val staffID = intent.getStringExtra("staffID")
                 val intent = Intent(this, StatusActivity::class.java)
                 intent.putExtra("staffID",staffID)
+                intent.putExtra("scannedText",it.text)
                 startActivity(intent)
             }
         }

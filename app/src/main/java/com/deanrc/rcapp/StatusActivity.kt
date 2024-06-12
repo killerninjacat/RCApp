@@ -3,6 +3,7 @@ package com.deanrc.rcapp
 import CustomAdapter
 import ItemsViewModel
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -12,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
@@ -38,17 +40,24 @@ class StatusActivity : AppCompatActivity() {
             insets
         }
         val staffID = intent.getStringExtra("staffID")
-        val submit = findViewById<ImageButton>(R.id.tick)
-        val codeTextView = findViewById<TextView>(R.id.editTextText)
-        submit.setOnClickListener {
-            if (codeTextView.text == "" || codeTextView.text.length < 15 ||  codeTextView.text.toString().substring(0, 4)!= "NITT"){
+        val qrIcon = findViewById<View>(R.id.qrImageView1)
+        qrIcon.setOnClickListener {
+            val intent = Intent(this, QRscanner::class.java)
+            intent.putExtra("staffID", staffID)
+            startActivity(intent)
+        }
+        val scannedText = intent.getStringExtra("scannedText")
+        if (scannedText != null) {
+            if (scannedText == "" || scannedText.length < 15 ||  scannedText.toString().substring(0, 4)!= "NITT"){
                 runOnUiThread {
                     Toast.makeText(this, "File code invalid, paste the code you get after scanning the FILE QR", Toast.LENGTH_SHORT).show()
                 }
-            }
-            else{
-                val code = codeTextView.text.toString().substring(7, 11)
+            } else{
+                val firstSlash=scannedText.toString().indexOf('/')
+                val secondSlash=scannedText.toString().indexOf('/',firstSlash+1)
+                val code = scannedText.toString().substring(secondSlash+1, secondSlash+5)
                 if(code[3] == '/'){
+                    //TODO: check staff id for tally code
                     val retrofit = Retrofit.Builder()
                         .baseUrl(BASE_URL)
                         .addConverterFactory(GsonConverterFactory.create())
@@ -65,7 +74,7 @@ class StatusActivity : AppCompatActivity() {
                             }
                             var fileStatus = ArrayList<KeyValue>()
                             val fileDataList = response.body()
-                            val k =codeTextView.text.toString()
+                            val k =scannedText.toString()
                             for (i in fileDataList?.indices!!){
                                 if(fileDataList[i].FileID.toString() == k) {
                                     fileStatus.apply {
@@ -102,13 +111,13 @@ class StatusActivity : AppCompatActivity() {
                                 statusList.adapter = adapter
                             }
                         }
+
                         override fun onFailure(call: retrofit2.Call<FileData>, t: Throwable) {
                             Log.d("getreq", "Failure: ${t.message}")
                         }
                     })
 
-                }
-                else{
+                } else{
                     if (staffID==code){
                         val retrofit = Retrofit.Builder()
                             .baseUrl(BASE_URL)
@@ -124,7 +133,7 @@ class StatusActivity : AppCompatActivity() {
                                     return
                                 }
                                 var fileStatus = ArrayList<KeyValue>()
-                                val k = codeTextView.text.toString()
+                                val k = scannedText.toString()
                                 val fileDataList = response.body()
                                 for (i in fileDataList?.indices!!){
                                     if(fileDataList[i].FileID.toString() == k) {
@@ -155,8 +164,7 @@ class StatusActivity : AppCompatActivity() {
                             }
                         })
 
-                    }
-                    else{
+                    } else{
                         runOnUiThread {
                             Toast.makeText(this, "You dont have permission to access this file", Toast.LENGTH_SHORT).show()
                         }
@@ -185,5 +193,11 @@ class StatusActivity : AppCompatActivity() {
 //        val adapter = CustomAdapter(items)
 //        statusList.adapter = adapter
 
+    @Override
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent(this, DataActivity::class.java)
+        startActivity(intent)
+    }
 
 }
