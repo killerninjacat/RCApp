@@ -29,6 +29,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 class StatusActivity : AppCompatActivity() {
 
     private val BASE_URL = "https://sheetdb.io/"
+    lateinit var content: String
+    lateinit var staffID: String
     @SuppressLint("MissingInflatedId", "WrongViewCast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,11 +41,16 @@ class StatusActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val staffID = intent.getStringExtra("staffID")
+        val emptyView=findViewById<TextView>(R.id.textView4)
+        staffID = intent.getStringExtra("staffID").toString()
+        content= intent.getStringExtra("content").toString()
+        val tallyCodesString=intent.getStringExtra("tally codes")
+        val tallyCodes= tallyCodesString?.split(",")?.toTypedArray()
         val qrIcon = findViewById<View>(R.id.qrImageView1)
         qrIcon.setOnClickListener {
             val intent = Intent(this, QRscanner::class.java)
             intent.putExtra("staffID", staffID)
+            intent.putExtra("content", content)
             startActivity(intent)
         }
         val scannedText = intent.getStringExtra("scannedText")
@@ -55,9 +62,21 @@ class StatusActivity : AppCompatActivity() {
             } else{
                 val firstSlash=scannedText.toString().indexOf('/')
                 val secondSlash=scannedText.toString().indexOf('/',firstSlash+1)
-                val code = scannedText.toString().substring(secondSlash+1, secondSlash+5)
+                var code = scannedText.toString().substring(secondSlash+1, secondSlash+5)
                 if(code[3] == '/'){
-                    //TODO: check staff id for tally code
+                    code=code.substring(0,3)
+                    if (tallyCodes != null) {
+                        if(!tallyCodes.contains(code)) {
+                            Toast.makeText(
+                                this,
+                                "You don't have permission to access this file",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            emptyView.setText("You don't have permission to access this file")
+                            emptyView.visibility = View.VISIBLE
+                            return
+                        }
+                    }
                     val retrofit = Retrofit.Builder()
                         .baseUrl(BASE_URL)
                         .addConverterFactory(GsonConverterFactory.create())
@@ -72,16 +91,15 @@ class StatusActivity : AppCompatActivity() {
                                 Log.e("getreq", "Error: ${response.code()}")
                                 return
                             }
-                            var fileStatus = ArrayList<KeyValue>()
+                            val fileStatus = ArrayList<KeyValue>()
                             val fileDataList = response.body()
                             val k =scannedText.toString()
                             for (i in fileDataList?.indices!!){
-                                if(fileDataList[i].FileID.toString() == k) {
+                                if(fileDataList[i].FileID == k) {
                                     fileStatus.apply {
                                         fileStatus.add(KeyValue("FileID",fileDataList[i].FileID?:""))
                                         fileStatus.add(KeyValue("Description",fileDataList[i].Description?:""))
-                                        var flag:String
-                                        flag = fileDataList[i].Status1?:""
+                                        var flag:String = fileDataList[i].Status1?:""
                                         if(flag != "")fileStatus.add(KeyValue("Status1",fileDataList[i].Status1?:""))
                                         flag = fileDataList[i].Status2?:""
                                         if(flag != "")fileStatus.add(KeyValue("Status2",fileDataList[i].Status2?:""))
@@ -102,6 +120,12 @@ class StatusActivity : AppCompatActivity() {
                                         flag = fileDataList[i].Status10?:""
                                         if(flag != "")fileStatus.add(KeyValue("Status10",fileDataList[i].Status10?:""))
                                     }
+                                }
+                            }
+                            if(fileStatus.isEmpty()){
+                                runOnUiThread {
+                                    Toast.makeText(this@StatusActivity, "File status not available", Toast.LENGTH_SHORT).show()
+                                    emptyView.visibility=View.VISIBLE
                                 }
                             }
                             runOnUiThread {
@@ -166,7 +190,7 @@ class StatusActivity : AppCompatActivity() {
 
                     } else{
                         runOnUiThread {
-                            Toast.makeText(this, "You dont have permission to access this file", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "You don't have permission to access this file", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -197,7 +221,8 @@ class StatusActivity : AppCompatActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         val intent = Intent(this, DataActivity::class.java)
+        intent.putExtra("content",content)
+        intent.putExtra("staffID",staffID)
         startActivity(intent)
     }
-
 }
