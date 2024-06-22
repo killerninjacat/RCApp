@@ -5,7 +5,9 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/background_color">
 
     <com.budiyev.android.codescanner.CodeScannerView
         android:id="@+id/scanner_view"
@@ -18,12 +20,24 @@
         app:flashButtonVisible="true"
         app:frameAspectRatioHeight="1"
         app:frameAspectRatioWidth="1"
-        app:frameColor="@android:color/white"
-        app:frameCornersRadius="0dp"
-        app:frameCornersSize="50dp"
+        app:frameCornersRadius="8dp"
+        app:frameCornersSize="16dp"
         app:frameSize="0.75"
         app:frameThickness="2dp"
         app:frameVerticalBias="0.5"
-        app:maskColor="#77000000" />
+        app:maskColor="#77000000"
+        app:frameColor="@color/frame_color" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/custom_textbox_background"
+        android:fontFamily="@font/custom_font"
+        android:gravity="center"
+        android:text="Place the File's QR code inside the frame to scan"
+        android:textColor="#5A3D31"
+        android:textSize="16sp" />
 
 </LinearLayout>
