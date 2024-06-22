@@ -3,6 +3,7 @@ package com.deanrc.rcapp
 import CustomAdapter
 import ItemsViewModel
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -12,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
@@ -27,7 +29,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 class StatusActivity : AppCompatActivity() {
 
     private val BASE_URL = "https://sheetdb.io/"
-    @SuppressLint("MissingInflatedId", "WrongViewCast")
+    lateinit var content: String
+    lateinit var staffID: String
+    @SuppressLint("MissingInflatedId", "WrongViewCast", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -37,18 +41,43 @@ class StatusActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        val staffID = intent.getStringExtra("staffID")
-        val submit = findViewById<ImageButton>(R.id.tick)
-        val codeTextView = findViewById<TextView>(R.id.editTextText)
-        submit.setOnClickListener {
-            if (codeTextView.text == "" || codeTextView.text.length < 15 ||  codeTextView.text.toString().substring(0, 4)!= "NITT"){
+        val emptyView=findViewById<TextView>(R.id.textView4)
+        staffID = intent.getStringExtra("staffID").toString()
+        content= intent.getStringExtra("content").toString()
+        val tallyCodesString=intent.getStringExtra("tally codes")
+        val tallyCodes= tallyCodesString?.split(",")?.toTypedArray()
+        val qrIcon = findViewById<View>(R.id.qrImageView1)
+        qrIcon.setOnClickListener {
+            val intent = Intent(this, QRscanner::class.java)
+            intent.putExtra("staffID", staffID)
+            intent.putExtra("content", content)
+            intent.putExtra("tallyCodes", tallyCodesString)
+            startActivity(intent)
+        }
+        val scannedText = intent.getStringExtra("scannedText")
+        if (scannedText != null) {
+            if (scannedText == "" || scannedText.length < 15 ||  scannedText.toString().substring(0, 4)!= "NITT"){
                 runOnUiThread {
                     Toast.makeText(this, "File code invalid, paste the code you get after scanning the FILE QR", Toast.LENGTH_SHORT).show()
                 }
-            }
-            else{
-                val code = codeTextView.text.toString().substring(7, 11)
-                if(code[3] == '/'){
+            } else{
+                val firstSlash=scannedText.toString().indexOf('/')
+                val secondSlash=scannedText.toString().indexOf('/',firstSlash+1)
+                var code = scannedText.toString().substring(secondSlash+1, secondSlash+5)
+                Log.d("tally codes",tallyCodesString.toString())
+                if(code[3] == '/') {
+                    code = code.substring(0, 3)
+                    if (tallyCodes != null) {
+                        if (!tallyCodes.contains(code)) {
+                            Toast.makeText(
+                                this,
+                                "You don't have permission to access this file",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            emptyView.text = "You don't have permission to access this file"
+                            emptyView.visibility = View.VISIBLE
+                            return
+                    }
                     val retrofit = Retrofit.Builder()
                         .baseUrl(BASE_URL)
                         .addConverterFactory(GsonConverterFactory.create())
@@ -58,41 +87,113 @@ class StatusActivity : AppCompatActivity() {
                     val call = apiService.getFileData()
 
                     call.enqueue(object : retrofit2.Callback<FileData> {
-                        override fun onResponse(call: retrofit2.Call<FileData>, response: retrofit2.Response<FileData>) {
+                        override fun onResponse(
+                            call: retrofit2.Call<FileData>,
+                            response: retrofit2.Response<FileData>
+                        ) {
                             if (!response.isSuccessful) {
                                 Log.e("getreq", "Error: ${response.code()}")
                                 return
                             }
-                            var fileStatus = ArrayList<KeyValue>()
+                            val fileStatus = ArrayList<KeyValue>()
                             val fileDataList = response.body()
-                            val k =codeTextView.text.toString()
-                            for (i in fileDataList?.indices!!){
-                                if(fileDataList[i].FileID.toString() == k) {
+                            val k = scannedText.toString()
+                            for (i in fileDataList?.indices!!) {
+                                if (fileDataList[i].FileID == k) {
                                     fileStatus.apply {
-                                        fileStatus.add(KeyValue("FileID",fileDataList[i].FileID?:""))
-                                        fileStatus.add(KeyValue("Description",fileDataList[i].Description?:""))
-                                        var flag:String
-                                        flag = fileDataList[i].Status1?:""
-                                        if(flag != "")fileStatus.add(KeyValue("Status1",fileDataList[i].Status1?:""))
-                                        flag = fileDataList[i].Status2?:""
-                                        if(flag != "")fileStatus.add(KeyValue("Status2",fileDataList[i].Status2?:""))
-                                        flag = fileDataList[i].Status3?:""
-                                        if(flag != "")fileStatus.add(KeyValue("Status3",fileDataList[i].Status3?:""))
-                                        flag = fileDataList[i].Status4?:""
-                                        if(flag != "")fileStatus.add(KeyValue("Status4",fileDataList[i].Status4?:""))
-                                        flag = fileDataList[i].Status5?:""
-                                        if(flag != "")fileStatus.add(KeyValue("Status5",fileDataList[i].Status5?:""))
-                                        flag = fileDataList[i].Status6?:""
-                                        if(flag != "")fileStatus.add(KeyValue("Status6",fileDataList[i].Status6?:""))
-                                        flag = fileDataList[i].Status7?:""
-                                        if(flag != "")fileStatus.add(KeyValue("Status7",fileDataList[i].Status7?:""))
-                                        flag = fileDataList[i].Status8?:""
-                                        if(flag != "")fileStatus.add(KeyValue("Status8",fileDataList[i].Status8?:""))
-                                        flag = fileDataList[i].Status9?:""
-                                        if(flag != "")fileStatus.add(KeyValue("Status9",fileDataList[i].Status9?:""))
-                                        flag = fileDataList[i].Status10?:""
-                                        if(flag != "")fileStatus.add(KeyValue("Status10",fileDataList[i].Status10?:""))
+                                        fileStatus.add(
+                                            KeyValue(
+                                                "FileID",
+                                                fileDataList[i].FileID ?: ""
+                                            )
+                                        )
+                                        fileStatus.add(
+                                            KeyValue(
+                                                "Description",
+                                                fileDataList[i].Description ?: ""
+                                            )
+                                        )
+                                        var flag: String = fileDataList[i].Status1 ?: ""
+                                        if (flag != "") fileStatus.add(
+                                            KeyValue(
+                                                "Status1",
+                                                fileDataList[i].Status1 ?: ""
+                                            )
+                                        )
+                                        flag = fileDataList[i].Status2 ?: ""
+                                        if (flag != "") fileStatus.add(
+                                            KeyValue(
+                                                "Status2",
+                                                fileDataList[i].Status2 ?: ""
+                                            )
+                                        )
+                                        flag = fileDataList[i].Status3 ?: ""
+                                        if (flag != "") fileStatus.add(
+                                            KeyValue(
+                                                "Status3",
+                                                fileDataList[i].Status3 ?: ""
+                                            )
+                                        )
+                                        flag = fileDataList[i].Status4 ?: ""
+                                        if (flag != "") fileStatus.add(
+                                            KeyValue(
+                                                "Status4",
+                                                fileDataList[i].Status4 ?: ""
+                                            )
+                                        )
+                                        flag = fileDataList[i].Status5 ?: ""
+                                        if (flag != "") fileStatus.add(
+                                            KeyValue(
+                                                "Status5",
+                                                fileDataList[i].Status5 ?: ""
+                                            )
+                                        )
+                                        flag = fileDataList[i].Status6 ?: ""
+                                        if (flag != "") fileStatus.add(
+                                            KeyValue(
+                                                "Status6",
+                                                fileDataList[i].Status6 ?: ""
+                                            )
+                                        )
+                                        flag = fileDataList[i].Status7 ?: ""
+                                        if (flag != "") fileStatus.add(
+                                            KeyValue(
+                                                "Status7",
+                                                fileDataList[i].Status7 ?: ""
+                                            )
+                                        )
+                                        flag = fileDataList[i].Status8 ?: ""
+                                        if (flag != "") fileStatus.add(
+                                            KeyValue(
+                                                "Status8",
+                                                fileDataList[i].Status8 ?: ""
+                                            )
+                                        )
+                                        flag = fileDataList[i].Status9 ?: ""
+                                        if (flag != "") fileStatus.add(
+                                            KeyValue(
+                                                "Status9",
+                                                fileDataList[i].Status9 ?: ""
+                                            )
+                                        )
+                                        flag = fileDataList[i].Status10 ?: ""
+                                        if (flag != "") fileStatus.add(
+                                            KeyValue(
+                                                "Status10",
+                                                fileDataList[i].Status10 ?: ""
+                                            )
+                                        )
                                     }
+                                }
+                            }
+                            if (fileStatus.isEmpty()) {
+                                runOnUiThread {
+                                    Toast.makeText(
+                                        this@StatusActivity,
+                                        "File status not available",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    emptyView.visibility = View.VISIBLE
                                 }
                             }
                             runOnUiThread {
@@ -102,13 +203,13 @@ class StatusActivity : AppCompatActivity() {
                                 statusList.adapter = adapter
                             }
                         }
+
                         override fun onFailure(call: retrofit2.Call<FileData>, t: Throwable) {
                             Log.d("getreq", "Failure: ${t.message}")
                         }
                     })
-
                 }
-                else{
+                } else{
                     if (staffID==code){
                         val retrofit = Retrofit.Builder()
                             .baseUrl(BASE_URL)
@@ -124,7 +225,7 @@ class StatusActivity : AppCompatActivity() {
                                     return
                                 }
                                 var fileStatus = ArrayList<KeyValue>()
-                                val k = codeTextView.text.toString()
+                                val k = scannedText.toString()
                                 val fileDataList = response.body()
                                 for (i in fileDataList?.indices!!){
                                     if(fileDataList[i].FileID.toString() == k) {
@@ -155,10 +256,9 @@ class StatusActivity : AppCompatActivity() {
                             }
                         })
 
-                    }
-                    else{
+                    } else{
                         runOnUiThread {
-                            Toast.makeText(this, "You dont have permission to access this file", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "You don't have permission to access this file", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -185,5 +285,12 @@ class StatusActivity : AppCompatActivity() {
 //        val adapter = CustomAdapter(items)
 //        statusList.adapter = adapter
 
-
+    @Override
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent(this, DataActivity::class.java)
+        intent.putExtra("content",content)
+        intent.putExtra("staffID",staffID)
+        startActivity(intent)
+    }
 }
