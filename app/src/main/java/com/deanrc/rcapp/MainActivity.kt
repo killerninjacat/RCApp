@@ -41,11 +41,12 @@ class MainActivity : AppCompatActivity() {
         val passwordBox = findViewById<EditText>(R.id.editTextPassword)
         val submitButton= findViewById<Button>(R.id.submitButton)
         val forgotButton = findViewById<TextView>(R.id.forgotPassword)
+        val baseUrl="http://localhost:3000"
         forgotButton.setOnClickListener {
             Toast.makeText(this, "Reset your password in the R&C website", Toast.LENGTH_SHORT)
                 .show()
         }
-        val url = URL("http://localhost:3000/api/mobile/getStaffProjects")
+        val url = URL("$baseUrl/api/mobile/getStaffProjects")
         submitButton.setOnClickListener {
             val staffId = staffIdBox.text.toString()
             val password = passwordBox.text.toString()
