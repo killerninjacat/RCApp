@@ -1,6 +1,7 @@
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.deanrc.rcapp.KeyValue
@@ -19,6 +20,8 @@ class CustomAdapter(private val mList: List<KeyValue>) : RecyclerView.Adapter<Cu
         val keyValue = mList[position]
         holder.title.text = keyValue.key
         holder.description.text = keyValue.value
+        if (position==0 || position==1)holder.img.setImageResource(R.drawable.icon)
+        if (position == mList.size-1)holder.img.setImageResource(R.drawable.icon_3)
     }
 
     override fun getItemCount(): Int {
@@ -27,5 +30,6 @@ class CustomAdapter(private val mList: List<KeyValue>) : RecyclerView.Adapter<Cu
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val description: TextView = this.itemView.findViewById(R.id.description)
         val title: TextView = this.itemView.findViewById(R.id.title)
+        val img : ImageView = this.itemView.findViewById(R.id.imageView4)
     }
 }

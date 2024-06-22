@@ -15,6 +15,7 @@ class DataAdapter(private val mList: List<KeyValue>) : RecyclerView.Adapter<Data
         val keyValue = mList[position]
         holder.title.text = keyValue.key
         holder.description.text = keyValue.value
+
     }
 
     override fun getItemCount(): Int {

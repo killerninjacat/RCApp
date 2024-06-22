@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_color"
     tools:context=".StatusActivity">
 
     <ImageButton
@@ -13,6 +14,7 @@
         android:layout_height="44dp"
         android:layout_marginStart="12dp"
         android:layout_marginTop="16dp"
+        android:background="@drawable/custom_imagebutton_background"
         app:layout_constraintStart_toEndOf="@+id/editTextText"
         app:layout_constraintTop_toBottomOf="@+id/imageView"
         app:srcCompat="@android:drawable/checkbox_on_background"
@@ -24,6 +26,7 @@
         android:layout_height="45dp"
         android:layout_marginStart="4dp"
         android:layout_marginTop="16dp"
+        android:background="@drawable/custom_imagebutton_background"
         app:layout_constraintStart_toEndOf="@+id/tick"
         app:layout_constraintTop_toBottomOf="@+id/imageView"
         app:srcCompat="@drawable/ic_code_scanner_auto_focus_off"
@@ -37,6 +40,9 @@
         android:ems="10"
         android:hint="Enter File code"
         android:inputType="text"
+        android:textColor="#5A3D31"
+        android:fontFamily="@font/custom_font"
+        android:background="@drawable/custom_textbox_background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.085"
         app:layout_constraintStart_toStartOf="parent"
@@ -58,12 +64,12 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="16dp"
-        android:fontFamily="sans-serif-medium"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="20dp"
         android:text="NITT R&amp;C PROJECTS"
-        android:textColor="@color/border_color"
         android:textSize="25sp"
+        android:textColor="#5A3D31"
+        android:fontFamily="@font/custom_font"
         app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -76,7 +82,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText"
-        tools:ignore="MissingConstraints" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
