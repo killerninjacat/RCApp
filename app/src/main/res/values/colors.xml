@@ -5,4 +5,8 @@
     <color name="list_color">#FFFFFFFF</color>
     <color name="border_color">#FF000000</color>
     <color name="border_color_actual">#FF000000</color>
+    <color name="background_color">#EDDADA</color>
+    <color name="text_color">#424242</color>
+    <color name="frame_color">#511B1B</color>
+    <color name="accent_color">#2E0E03</color>
 </resources>
