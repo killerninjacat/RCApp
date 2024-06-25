@@ -61,8 +61,17 @@ class QRscanner : AppCompatActivity() {
                 val content=intent.getStringExtra("content")
                 val tallyCodesString=intent.getStringExtra("tallyCodes")
                 val intent = Intent(this, StatusActivity::class.java)
+                val scannedText=it.text
+                lateinit var fileId: String
+                if(scannedText.substring(0, 4)== "NITT"){
+                    fileId=scannedText
+                }
+                else{
+                    val modifiedUrl = scannedText.replace(".com", ".com/text")
+                    //TODO: extract text from website and give it to variable 'fileId'
+                }
                 intent.putExtra("staffID",staffID)
-                intent.putExtra("scannedText",it.text)
+                intent.putExtra("scannedText",fileId)
                 intent.putExtra("tally codes",tallyCodesString)
                 intent.putExtra("content",content)
                 startActivity(intent)

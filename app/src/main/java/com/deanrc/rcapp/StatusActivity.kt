@@ -51,7 +51,7 @@ class StatusActivity : AppCompatActivity() {
             emptyView.visibility = View.VISIBLE
             return
         }
-        for(i in 0 until tallyCodes!!.size){
+        for(i in tallyCodes.indices){
             tallyCodes[i]="T"+tallyCodes[i]
         }
         val qrIcon = findViewById<View>(R.id.qrImageView1)
@@ -66,7 +66,7 @@ class StatusActivity : AppCompatActivity() {
         if (scannedText != null) {
             if (scannedText == "" || scannedText.length < 15 ||  scannedText.toString().substring(0, 4)!= "NITT"){
                 runOnUiThread {
-                    Toast.makeText(this, "File code invalid, paste the code you get after scanning the FILE QR", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "File code invalid, you can scan only R&C QR", Toast.LENGTH_SHORT).show()
                 }
             } else{
                 val firstSlash=scannedText.toString().indexOf('/')
