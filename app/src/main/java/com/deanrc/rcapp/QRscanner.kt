@@ -22,6 +22,7 @@ import com.budiyev.android.codescanner.CodeScanner
 import com.budiyev.android.codescanner.CodeScannerView
 import com.budiyev.android.codescanner.DecodeCallback
 import com.budiyev.android.codescanner.ScanMode
+import org.jsoup.Jsoup
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
@@ -66,9 +67,11 @@ class QRscanner : AppCompatActivity() {
                 if(scannedText.substring(0, 4)== "NITT"){
                     fileId=scannedText
                 }
-                else{
+                else if(scannedText.substring(0, 4) == "http"){
                     val modifiedUrl = scannedText.replace(".com", ".com/text")
-                    //TODO: extract text from website and give it to variable 'fileId'
+                    val temp = fetchUrlContent(modifiedUrl)
+                    fileId = extractFileCode(temp.toString()).toString()
+                    Log.d("checkForUrlContent",fileId)
                 }
                 intent.putExtra("staffID",staffID)
                 intent.putExtra("scannedText",fileId)
@@ -134,22 +137,20 @@ class QRscanner : AppCompatActivity() {
         }
 
     }
-    private inner class FetchUrlContentTask : AsyncTask<String, Void, String>() {
-        override fun doInBackground(vararg params: String): String {
-            val urlString = params[0]
-            return try {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(urlString))
-                startActivity(intent)
-                "Opening URL for File-Code in your default browser"
-            }
-            catch (e: Exception) {
-                "Error: ${e.message}"
-            }
+    fun fetchUrlContent(urlString: String): String? {
+        return FetchUrlTask().execute(urlString).get()
+    }
+
+    private class FetchUrlTask : AsyncTask<String, Void, String>() {
+        override fun doInBackground(vararg params: String?): String {
+            val url = URL(params[0])
+            return url.readText()
         }
-        override fun onPostExecute(result: String) {
-            super.onPostExecute(result)
-            Toast.makeText(this@QRscanner, result, Toast.LENGTH_SHORT).show()
-        }
+    }
+    fun extractFileCode(html: String): String? {
+        val document = Jsoup.parse(html)
+        val codeElement = document.select("div.container-fluid p").first()
+        return codeElement?.text()
     }
 }
 
