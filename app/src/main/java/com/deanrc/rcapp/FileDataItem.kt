@@ -2,7 +2,7 @@ package com.deanrc.rcapp
 
 data class FileDataItem(
     val Description: String,
-    val FileID: String,
+    val FileNumber: String,
     val Status1: String,
     val Status2: String,
     val Status3: String,

@@ -25,6 +25,7 @@ import java.io.IOException
 import androidx.activity.enableEdgeToEdge
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
 
 class StatusActivity : AppCompatActivity() {
 
@@ -46,14 +47,9 @@ class StatusActivity : AppCompatActivity() {
         content= intent.getStringExtra("content").toString()
         val tallyCodesString=intent.getStringExtra("tally codes")
         val tallyCodes= tallyCodesString?.split(",")?.toTypedArray()
-        if(tallyCodes==null){
-            emptyView.text = "You don't have permission to access this file"
-            emptyView.visibility = View.VISIBLE
-            return
-        }
-        for(i in tallyCodes.indices){
-            tallyCodes[i]="T"+tallyCodes[i]
-        }
+//        for(i in tallyCodes.indices){
+//            tallyCodes[i]="T"+tallyCodes[i]
+//        }
         val qrIcon = findViewById<View>(R.id.qrImageView1)
         qrIcon.setOnClickListener {
             val intent = Intent(this, QRscanner::class.java)
@@ -68,12 +64,18 @@ class StatusActivity : AppCompatActivity() {
                 runOnUiThread {
                     Toast.makeText(this, "File code invalid, you can scan only R&C QR", Toast.LENGTH_SHORT).show()
                 }
+                return
             } else{
                 val firstSlash=scannedText.toString().indexOf('/')
                 val secondSlash=scannedText.toString().indexOf('/',firstSlash+1)
                 val thirdSlash=scannedText.toString().indexOf('/',secondSlash+1)
                 var code = scannedText.toString().substring(secondSlash+1, thirdSlash)
-                if(code[0] == 'T') {
+                if(code.length==3) {
+                    if(tallyCodes==null){
+                        emptyView.text = "You don't have permission to access this file"
+                        emptyView.visibility = View.VISIBLE
+                        return
+                    }
                     val tmp=code.length
                     code = code.substring(0,tmp)
                     if (!tallyCodes.contains(code)) {
@@ -101,18 +103,20 @@ class StatusActivity : AppCompatActivity() {
                         ) {
                             if (!response.isSuccessful) {
                                 Log.e("getreq", "Error: ${response.code()}")
+                                Toast.makeText(this@StatusActivity, "Connection error!",Toast.LENGTH_SHORT).show()
                                 return
                             }
                             val fileStatus = ArrayList<KeyValue>()
+                            val imageId=ArrayList<Int>()
                             val fileDataList = response.body()
                             val k = scannedText.toString()
                             for (i in fileDataList?.indices!!) {
-                                if (fileDataList[i].FileID == k) {
+                                if (fileDataList[i].FileNumber == k) {
                                     fileStatus.apply {
                                         fileStatus.add(
                                             KeyValue(
                                                 "File ID",
-                                                fileDataList[i].FileID ?: ""
+                                                fileDataList[i].FileNumber ?: ""
                                             )
                                         )
                                         fileStatus.add(
@@ -192,6 +196,21 @@ class StatusActivity : AppCompatActivity() {
                                             )
                                         )
                                     }
+                                    for(ind in 0 until fileStatus.size){
+                                        Log.d("file data", fileStatus[ind].key)
+                                        if(ind==0 || ind==1) {
+                                            imageId.add(0)
+                                            Log.d("image 0", "0")
+                                        }
+                                        else if(ind==fileStatus.size-1) {
+                                            imageId.add(2)
+                                            Log.d("image 2", "2")
+                                        }
+                                        else {
+                                            imageId.add(1)
+                                            Log.d("image 1", "1")
+                                        }
+                                    }
                                 }
                             }
                             Log.d("file data", fileStatus.toString())
@@ -208,13 +227,14 @@ class StatusActivity : AppCompatActivity() {
                             runOnUiThread {
                                 val statusList = findViewById<RecyclerView>(R.id.recyclerViewStatus)
                                 statusList.layoutManager = LinearLayoutManager(this@StatusActivity)
-                                val adapter = CustomAdapter(fileStatus)
+                                val adapter = CustomAdapter(StatusData(fileStatus,imageId))
                                 statusList.adapter = adapter
                             }
                         }
 
                         override fun onFailure(call: retrofit2.Call<FileData>, t: Throwable) {
                             Log.d("getreq", "Failure: ${t.message}")
+                            Toast.makeText(this@StatusActivity, "Connection error!",Toast.LENGTH_SHORT).show()
                         }
                     })
                 } else{
@@ -230,37 +250,45 @@ class StatusActivity : AppCompatActivity() {
                             override fun onResponse(call: retrofit2.Call<FileData>, response: retrofit2.Response<FileData>) {
                                 if (!response.isSuccessful) {
                                     Log.e("getreq", "Error: ${response.code()}")
+                                    Toast.makeText(this@StatusActivity, "Connection error!",Toast.LENGTH_SHORT).show()
                                     return
                                 }
-                                var fileStatus = ArrayList<KeyValue>()
+                                val fileStatus = ArrayList<KeyValue>()
+                                val imageId=ArrayList<Int>()
                                 val k = scannedText.toString()
                                 val fileDataList = response.body()
                                 for (i in fileDataList?.indices!!){
-                                    if(fileDataList[i].FileID.toString() == k) {
+                                    if(fileDataList[i].FileNumber.toString() == k) {
                                         fileStatus.apply {
-                                            fileStatus.add(KeyValue("FileID",fileDataList[i].FileID?:""))
+                                            fileStatus.add(KeyValue("File ID",fileDataList[i].FileNumber?:""))
                                             fileStatus.add(KeyValue("Description",fileDataList[i].Description?:""))
-                                            fileStatus.add(KeyValue("Status1",fileDataList[i].Status1?:""))
-                                            fileStatus.add(KeyValue("Status2",fileDataList[i].Status2?:""))
-                                            fileStatus.add(KeyValue("Status3",fileDataList[i].Status3?:""))
-                                            fileStatus.add(KeyValue("Status4",fileDataList[i].Status4?:""))
-                                            fileStatus.add(KeyValue("Status5",fileDataList[i].Status5?:""))
-                                            fileStatus.add(KeyValue("Status6",fileDataList[i].Status6?:""))
-                                            fileStatus.add(KeyValue("Status7",fileDataList[i].Status7?:""))
-                                            fileStatus.add(KeyValue("Status8",fileDataList[i].Status8?:""))
-                                            fileStatus.add(KeyValue("Status9",fileDataList[i].Status9?:""))
-                                            fileStatus.add(KeyValue("Status10",fileDataList[i].Status10?:""))
+                                            fileStatus.add(KeyValue("Status 1",fileDataList[i].Status1?:""))
+                                            fileStatus.add(KeyValue("Status 2",fileDataList[i].Status2?:""))
+                                            fileStatus.add(KeyValue("Status 3",fileDataList[i].Status3?:""))
+                                            fileStatus.add(KeyValue("Status 4",fileDataList[i].Status4?:""))
+                                            fileStatus.add(KeyValue("Status 5",fileDataList[i].Status5?:""))
+                                            fileStatus.add(KeyValue("Status 6",fileDataList[i].Status6?:""))
+                                            fileStatus.add(KeyValue("Status 7",fileDataList[i].Status7?:""))
+                                            fileStatus.add(KeyValue("Status 8",fileDataList[i].Status8?:""))
+                                            fileStatus.add(KeyValue("Status 9",fileDataList[i].Status9?:""))
+                                            fileStatus.add(KeyValue("Status 10",fileDataList[i].Status10?:""))
+                                        }
+                                        for(ind in 0 until fileStatus.size){
+                                            if(ind==0 || ind==1) imageId.add(0)
+                                            else if(ind==fileStatus.size-1) imageId.add(2)
+                                            else imageId.add(1)
                                         }
                                     }
                                 }
                                 val statusList = findViewById<RecyclerView>(R.id.recyclerViewStatus)
                                 statusList.layoutManager = LinearLayoutManager(this@StatusActivity)
-                                val adapter = CustomAdapter(fileStatus)
+                                val adapter = CustomAdapter(StatusData(fileStatus,imageId))
                                 statusList.adapter = adapter
                             }
 
                             override fun onFailure(call: retrofit2.Call<FileData>, t: Throwable) {
                                 Log.e("getreq", "Failure: ${t.message}")
+                                Toast.makeText(this@StatusActivity, "Connection error!",Toast.LENGTH_SHORT).show()
                             }
                         })
 

@@ -4,6 +4,6 @@ import retrofit2.Call
 import retrofit2.http.GET
 
 interface ApiService {
-    @GET("api/v1/d1skg62lqtqo1")
+    @GET("api/v1/5kerfra12ajnj")
     fun getFileData(): Call<FileData>
 }

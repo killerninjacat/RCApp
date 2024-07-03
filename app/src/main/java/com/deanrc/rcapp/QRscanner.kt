@@ -55,7 +55,6 @@ class QRscanner : AppCompatActivity() {
         codeScanner.isFlashEnabled = false
 
         codeScanner.decodeCallback = DecodeCallback {
-            runOnUiThread {
                 Log.d("QR link",it.text )
                 //FetchUrlContentTask().execute(it.text)
                 val staffID = intent.getStringExtra("staffID")
@@ -63,6 +62,7 @@ class QRscanner : AppCompatActivity() {
                 val tallyCodesString=intent.getStringExtra("tallyCodes")
                 val intent = Intent(this, StatusActivity::class.java)
                 val scannedText=it.text
+                var chk=0
                 lateinit var fileId: String
                 if(scannedText.substring(0, 4)== "NITT"){
                     fileId=scannedText
@@ -70,17 +70,25 @@ class QRscanner : AppCompatActivity() {
                 else if(scannedText.substring(0, 4) == "http"){
                     val modifiedUrl = scannedText.replace(".com", ".com/text")
                     val temp = fetchUrlContent(modifiedUrl)
+                    if(temp=="failed connection"){
+                        runOnUiThread {
+                            Toast.makeText(this, "Failed to connect to me-qr.com. Touch anywhere to try again", Toast.LENGTH_SHORT).show()
+                        }
+                        chk=1
+                    }
                     fileId = extractFileCode(temp.toString()).toString()
                     Log.d("checkForUrlContent",fileId)
                 }
-                intent.putExtra("staffID",staffID)
-                intent.putExtra("scannedText",fileId)
-                intent.putExtra("tally codes",tallyCodesString)
-                intent.putExtra("content",content)
+            if(chk==0) {
+                intent.putExtra("staffID", staffID)
+                intent.putExtra("scannedText", fileId)
+                intent.putExtra("tally codes", tallyCodesString)
+                intent.putExtra("content", content)
                 startActivity(intent)
                 finish()
             }
-        }
+            else codeScanner.startPreview()
+            }
 //
 //        submitButton.setOnClickListener {
 //            if (codeTextView.text=="" &&  codeTextView.text.toString().substring(0, 4)!= "NITT"){
@@ -143,8 +151,13 @@ class QRscanner : AppCompatActivity() {
 
     private class FetchUrlTask : AsyncTask<String, Void, String>() {
         override fun doInBackground(vararg params: String?): String {
-            val url = URL(params[0])
-            return url.readText()
+            return try {
+                val url = URL(params[0])
+                return url.readText()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                "failed connection"
+            }
         }
     }
     fun extractFileCode(html: String): String? {

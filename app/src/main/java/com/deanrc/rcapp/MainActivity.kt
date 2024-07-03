@@ -1,27 +1,16 @@
 package com.deanrc.rcapp
 
 import android.content.Intent
-import android.content.res.Configuration
-import android.graphics.Color
 import android.os.Bundle
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.method.LinkMovementMethod
-import android.text.style.ClickableSpan
-import android.text.style.ForegroundColorSpan
 import android.util.Log
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
-import androidx.recyclerview.widget.RecyclerView
 import org.json.JSONObject
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
@@ -75,6 +64,7 @@ class MainActivity : AppCompatActivity() {
                         val response = conn.inputStream.bufferedReader().readText()
                         val responseJson = JSONObject(response)
                         val content = responseJson.getString("content")
+                        Log.d("content", content)
                         runOnUiThread {
                             Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
                         }
@@ -102,5 +92,14 @@ class MainActivity : AppCompatActivity() {
                 }
             }.start()
         }
+    }
+
+    @Override
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val a = Intent(Intent.ACTION_MAIN)
+        a.addCategory(Intent.CATEGORY_HOME)
+        a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(a)
     }
 }
