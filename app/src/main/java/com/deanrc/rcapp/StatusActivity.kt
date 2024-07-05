@@ -88,6 +88,7 @@ class StatusActivity : AppCompatActivity() {
                         emptyView.visibility = View.VISIBLE
                         return
                 }
+                    Toast.makeText(this, "Fetching data. Please wait...", Toast.LENGTH_LONG).show()
                     val retrofit = Retrofit.Builder()
                         .baseUrl(BASE_URL)
                         .addConverterFactory(GsonConverterFactory.create())
@@ -239,6 +240,7 @@ class StatusActivity : AppCompatActivity() {
                     })
                 } else{
                     if (staffID==code){
+                        Toast.makeText(this, "Fetching data. Please wait...", Toast.LENGTH_LONG).show()
                         val retrofit = Retrofit.Builder()
                             .baseUrl(BASE_URL)
                             .addConverterFactory(GsonConverterFactory.create())

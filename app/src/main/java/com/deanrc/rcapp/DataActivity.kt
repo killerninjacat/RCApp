@@ -32,6 +32,7 @@ class DataActivity : AppCompatActivity() {
             insets
         }
         val staffIDTextView = findViewById<TextView>(R.id.staffIDTextView)
+        val selectTallyTextView=findViewById<TextView>(R.id.textView2)
         val staffId = intent.getStringExtra("staffID")
         Log.d("staff id", staffId.toString())
         staffIDTextView.text = "Staff ID: $staffId"
@@ -50,8 +51,9 @@ class DataActivity : AppCompatActivity() {
         for(i in 0 until contentJsonArray.length()) {
             val project = contentJsonArray.getJSONObject(i)
             items.add(project)
-            tallyCodes.add(project.getJSONObject("Tallycode").getString("value"))
+            if(project.has("Tallycode")) tallyCodes.add(project.getJSONObject("Tallycode").getString("value"))
         }
+        //tallyCodes.add(tallyCodes.size,"634")
         if(items.isEmpty()) {
             Toast.makeText(this, "No projects found", Toast.LENGTH_SHORT).show()
             emptyTextView.visibility = View.VISIBLE
@@ -64,6 +66,21 @@ class DataActivity : AppCompatActivity() {
             intent.putExtra("tallyCodes", tallyCodesString)
             intent.putExtra("content", content)
             startActivity(intent)
+        }
+        if(tallyCodes.isEmpty()){
+            tallyCodeSpinner.visibility=View.INVISIBLE
+            selectTallyTextView.visibility=View.INVISIBLE
+            val listKeyValue = transformData(items)
+            val sortedList = listKeyValue.sortedWith { o1, o2 ->
+                when {
+                    !o1.key.any { it.isDigit() } && o2.key.any { it.isDigit() } -> -1
+                    o1.key.any { it.isDigit() } && !o2.key.any { it.isDigit() } -> 1
+                    else -> o1.key.compareTo(o2.key)
+                }
+            }
+            val adapter = DataAdapter(sortedList)
+            projectsList.adapter = adapter
+            return
         }
         val spinnerAdapter = ArrayAdapter(this, R.layout.spinner_item, tallyCodes)
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)

@@ -69,6 +69,7 @@ class QRscanner : AppCompatActivity() {
                 }
                 else if(scannedText.substring(0, 4) == "http"){
                     val modifiedUrl = scannedText.replace(".com", ".com/text")
+                    Toast.makeText(this, "Decoding QR content...", Toast.LENGTH_SHORT).show()
                     val temp = fetchUrlContent(modifiedUrl)
                     if(temp=="failed connection"){
                         runOnUiThread {
