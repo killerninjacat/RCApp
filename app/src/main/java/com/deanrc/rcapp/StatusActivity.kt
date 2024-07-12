@@ -80,6 +80,7 @@ class StatusActivity : AppCompatActivity() {
                     }
                     val tmp=code.length
                     code = code.substring(0,tmp)
+                    //TODO: comment lines 84-97 to show demo without access check
                     if(staffID!="2167" && staffID!="2438") {
                         if (tallyCodes != null) {
                             if (!tallyCodes.contains(code)) {
@@ -94,6 +95,7 @@ class StatusActivity : AppCompatActivity() {
                             }
                         }
                     }
+                    //comment till here
                     Toast.makeText(this, "Fetching data. Please wait...", Toast.LENGTH_LONG).show()
                     val retrofit = Retrofit.Builder()
                         .baseUrl(BASE_URL)
@@ -245,6 +247,7 @@ class StatusActivity : AppCompatActivity() {
                         }
                     })
                 } else{
+                    //TODO: change to if(true) in the next line to show demo
                     if (staffID==code || staffID=="2167" || staffID=="2438"){
                         Toast.makeText(this, "Fetching data. Please wait...", Toast.LENGTH_LONG).show()
                         val retrofit = Retrofit.Builder()
