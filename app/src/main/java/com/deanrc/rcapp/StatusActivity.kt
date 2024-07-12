@@ -72,22 +72,28 @@ class StatusActivity : AppCompatActivity() {
                 var code = scannedText.toString().substring(secondSlash+1, thirdSlash)
                 if(code.length==3) {
                     if(tallyCodes==null){
-                        emptyView.text = "You don't have permission to access this file"
-                        emptyView.visibility = View.VISIBLE
-                        return
+                        if(staffID!="2167" && staffID!="2438") {
+                            emptyView.text = "You don't have permission to access this file"
+                            emptyView.visibility = View.VISIBLE
+                            return
+                        }
                     }
                     val tmp=code.length
                     code = code.substring(0,tmp)
-                    if (!tallyCodes.contains(code)) {
-                        Toast.makeText(
-                            this,
-                            "You don't have permission to access this file",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        emptyView.text = "You don't have permission to access this file"
-                        emptyView.visibility = View.VISIBLE
-                        return
-                }
+                    if(staffID!="2167" && staffID!="2438") {
+                        if (tallyCodes != null) {
+                            if (!tallyCodes.contains(code)) {
+                                Toast.makeText(
+                                    this,
+                                    "You don't have permission to access this file",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                emptyView.text = "You don't have permission to access this file"
+                                emptyView.visibility = View.VISIBLE
+                                return
+                            }
+                        }
+                    }
                     Toast.makeText(this, "Fetching data. Please wait...", Toast.LENGTH_LONG).show()
                     val retrofit = Retrofit.Builder()
                         .baseUrl(BASE_URL)
@@ -239,7 +245,7 @@ class StatusActivity : AppCompatActivity() {
                         }
                     })
                 } else{
-                    if (staffID==code){
+                    if (staffID==code || staffID=="2167" || staffID=="2438"){
                         Toast.makeText(this, "Fetching data. Please wait...", Toast.LENGTH_LONG).show()
                         val retrofit = Retrofit.Builder()
                             .baseUrl(BASE_URL)
