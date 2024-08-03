@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         val passwordBox = findViewById<EditText>(R.id.editTextPassword)
         val submitButton= findViewById<Button>(R.id.submitButton)
         val forgotButton = findViewById<TextView>(R.id.forgotPassword)
-        val baseUrl="http://localhost:3000"
+        val baseUrl="https://rcpms.nitt.edu"
         forgotButton.setOnClickListener {
             Toast.makeText(this, "Reset your password in the R&C website", Toast.LENGTH_SHORT)
                 .show()
