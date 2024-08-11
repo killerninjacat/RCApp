@@ -47,9 +47,11 @@ class StatusActivity : AppCompatActivity() {
         content= intent.getStringExtra("content").toString()
         val tallyCodesString=intent.getStringExtra("tally codes")
         val tallyCodes= tallyCodesString?.split(",")?.toTypedArray()
-//        for(i in tallyCodes.indices){
-//            tallyCodes[i]="T"+tallyCodes[i]
-//        }
+        if (tallyCodes != null) {
+            for(i in tallyCodes.indices){
+                tallyCodes.set(i, "T"+tallyCodes[i])
+            }
+        }
         val qrIcon = findViewById<View>(R.id.qrImageView1)
         qrIcon.setOnClickListener {
             val intent = Intent(this, QRscanner::class.java)

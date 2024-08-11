@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.webkit.WebView
@@ -69,6 +70,7 @@ class QRscanner : AppCompatActivity() {
                 }
                 else if(scannedText.substring(0, 4) == "http"){
                     val modifiedUrl = scannedText.replace(".com", ".com/text")
+                    Looper.prepare()
                     Toast.makeText(this, "Decoding QR content...", Toast.LENGTH_SHORT).show()
                     val temp = fetchUrlContent(modifiedUrl)
                     if(temp=="failed connection"){
