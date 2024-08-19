@@ -41,7 +41,9 @@ class DataActivity : AppCompatActivity() {
         Log.d("content", content.toString())
         val contentJsonArray = JSONArray(content)
         Log.d("DataActivity", contentJsonArray.length().toString())
-        welcomeTextView.text = "Welcome, " + contentJsonArray.getJSONObject(0).getJSONObject("05. Name").getString("value")
+        var displayName="User $staffId"
+        if(contentJsonArray.getJSONObject(0).has("05. Name")) displayName=contentJsonArray.getJSONObject(0).getJSONObject("05. Name").getString("value")
+        welcomeTextView.text = "Welcome, $displayName"
         val tallyCodeSpinner = findViewById<Spinner>(R.id.tallyCodeSpinner)
         val tallyCodes = mutableListOf<String>()
         val projectsList = findViewById<RecyclerView>(R.id.recyclerViewData)

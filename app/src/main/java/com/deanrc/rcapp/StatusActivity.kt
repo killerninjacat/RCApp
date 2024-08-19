@@ -72,7 +72,7 @@ class StatusActivity : AppCompatActivity() {
                 val secondSlash=scannedText.toString().indexOf('/',firstSlash+1)
                 val thirdSlash=scannedText.toString().indexOf('/',secondSlash+1)
                 var code = scannedText.toString().substring(secondSlash+1, thirdSlash)
-                if(code.length==3) {
+                if(code[0]=='T') {
                     if(tallyCodes==null){
                         if(staffID!="2167" && staffID!="2438") {
                             emptyView.text = "You don't have permission to access this file"
