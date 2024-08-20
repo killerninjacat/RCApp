@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
                             Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
                         }
                         val intent = Intent(this, DataActivity::class.java)
-                        if(content.isNullOrEmpty()) content="[{}]"
+                        if(content.isNullOrEmpty() || content=="[]") content="[{}]"
                         intent.putExtra("content", content)
                         intent.putExtra("staffID", staffId)
                         startActivity(intent)
